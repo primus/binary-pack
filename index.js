@@ -12,6 +12,6 @@ module.exports = require('binarypack');
 //
 // Expose source of browser code to be loaded by primus
 //
-module.exports.browser = fs.readFileSync('./vendor/binarypack.js', 'utf-8');
+module.exports.BrowserSource = fs.readFileSync('./vendor/binarypack.js', 'utf-8');
 
 
