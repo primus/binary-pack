@@ -1,0 +1,17 @@
+{
+  "name": "binary-pack",
+  "description": "a module to package both browser and node versions of @ericz's binarypack",
+  "version": "0.0.0",
+  "author": "Jarrett Cruger <jcrugzz@gmail.com>",
+  "repository": {
+    "url": "git://github.com/jcrugzz/binary-pack.git"
+  },
+  "main": "index.js",
+  "engines": {
+    "node": "0.10.x"
+  },
+  "dependencies": {
+    "binarypack": "0.0.4"
+  },
+  "license": "MIT"
+}
