@@ -4,6 +4,7 @@
   "version": "0.0.2",
   "author": "Jarrett Cruger <jcrugzz@gmail.com>",
   "repository": {
+    "type": "git",
     "url": "git://github.com/jcrugzz/binary-pack.git"
   },
   "main": "index.js",
