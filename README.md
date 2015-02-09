@@ -2,7 +2,7 @@
 # binary-pack
 
 A little module that is fairly subjective for making it easy for any [`primus`][primus]
-user to have binary support over websockets..
+user to have binary support over websockets.
 
 Big thanks to @ericz for writing [`js-binarypack`][js-binarypack] and
 [`binarypack`][binarypack] which are bundled in this module.
