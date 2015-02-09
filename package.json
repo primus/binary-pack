@@ -1,7 +1,7 @@
 {
   "name": "binary-pack",
   "description": "a module to package both browser and node versions of @ericz's binarypack",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "Jarrett Cruger <jcrugzz@gmail.com>",
   "repository": {
     "type": "git",
