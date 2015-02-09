@@ -9,7 +9,7 @@
   },
   "main": "index.js",
   "engines": {
-    "node": "0.10.x || 0.8.x"
+    "node": ">=0.8.0"
   },
   "dependencies": {
     "binarypack": "0.0.4"
