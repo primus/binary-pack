@@ -1,11 +1,11 @@
 {
   "name": "binary-pack",
-  "description": "a module to package both browser and node versions of @ericz's binarypack",
+  "description": "A module to package both browser and node versions of @ericz's binarypack",
   "version": "0.0.3",
   "author": "Jarrett Cruger <jcrugzz@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "git://github.com/jcrugzz/binary-pack.git"
+    "url": "https://github.com/primus/binary-pack.git"
   },
   "main": "index.js",
   "engines": {
