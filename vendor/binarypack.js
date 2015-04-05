@@ -1,89 +1,22 @@
-/*! binarypack.js build:0.0.4, development. Copyright(c) 2012 Eric Zhang <eric@ericzhang.com> MIT Licensed */
-(function(exports){
-var binaryFeatures = {};
-binaryFeatures.useBlobBuilder = (function(){
-  try {
-    new Blob([]);
-    return false;
-  } catch (e) {
-    return true;
-  }
-})();
+/*! binarypack.js build:0.0.9, production. Copyright(c) 2012 Eric Zhang <eric@ericzhang.com> MIT Licensed */
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.BinaryPack = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+var BufferBuilder = _dereq_('./bufferbuilder').BufferBuilder;
+var binaryFeatures = _dereq_('./bufferbuilder').binaryFeatures;
 
-binaryFeatures.useArrayBufferView = !binaryFeatures.useBlobBuilder && (function(){
-  try {
-    return (new Blob([new Uint8Array([])])).size === 0;
-  } catch (e) {
-    return true;
-  }
-})();
-binaryFeatures.supportsBinaryWebsockets = (function(){
-  try {
-    var wstest = new WebSocket('ws://null');
-    wstest.onerror = function(){};
-    if (typeof(wstest.binaryType) !== "undefined") {
-      return true;
-    } else {
-      return false;
-    }
-    wstest.close();
-    wstest = null;
-  } catch (e) {
-    return false;
-  }
-})();
-
-exports.binaryFeatures = binaryFeatures;
-exports.BlobBuilder = window.WebKitBlobBuilder || window.MozBlobBuilder || window.MSBlobBuilder || window.BlobBuilder;
-
-function BufferBuilder(){
-  this._pieces = [];
-  this._parts = [];
-}
-
-BufferBuilder.prototype.append = function(data) {
-  if(typeof data === 'number') {
-    this._pieces.push(data);
-  } else {
-    this._flush();
-    this._parts.push(data);
-  }
-};
-
-BufferBuilder.prototype._flush = function() {
-  if (this._pieces.length > 0) {
-    var buf = new Uint8Array(this._pieces);
-    if(!binaryFeatures.useArrayBufferView) {
-      buf = buf.buffer;
-    }
-    this._parts.push(buf);
-    this._pieces = [];
-  }
-};
-
-BufferBuilder.prototype.getBuffer = function() {
-  this._flush();
-  if(binaryFeatures.useBlobBuilder) {
-    var builder = new BlobBuilder();
-    for(var i = 0, ii = this._parts.length; i < ii; i++) {
-      builder.append(this._parts[i]);
-    }
-    return builder.getBlob();
-  } else {
-    return new Blob(this._parts);
-  }
-};
-exports.BinaryPack = {
+var BinaryPack = {
   unpack: function(data){
     var unpacker = new Unpacker(data);
     return unpacker.unpack();
   },
   pack: function(data){
     var packer = new Packer();
-    var buffer = packer.pack(data);
+    packer.pack(data);
+    var buffer = packer.getBuffer();
     return buffer;
   }
 };
+
+module.exports = BinaryPack;
 
 function Unpacker (data){
   // Data is ArrayBuffer
@@ -92,7 +25,6 @@ function Unpacker (data){
   this.dataView = new Uint8Array(this.dataBuffer);
   this.length = this.dataBuffer.byteLength;
 }
-
 
 Unpacker.prototype.unpack = function(){
   var type = this.unpack_uint8();
@@ -323,8 +255,12 @@ Unpacker.prototype.read = function(length){
   }
 }
 
-function Packer (){
+function Packer(){
   this.bufferBuilder = new BufferBuilder();
+}
+
+Packer.prototype.getBuffer = function(){
+  return this.bufferBuilder.getBuffer();
 }
 
 Packer.prototype.pack = function(value){
@@ -362,7 +298,7 @@ Packer.prototype.pack = function(value){
         }
       } else if ('BYTES_PER_ELEMENT' in value){
         if(binaryFeatures.useArrayBufferView) {
-          this.pack_bin(value);
+          this.pack_bin(new Uint8Array(value.buffer));
         } else {
           this.pack_bin(value.buffer);
         }
@@ -379,7 +315,7 @@ Packer.prototype.pack = function(value){
   } else {
     throw new Error('Type "' + type + '" not yet supported');
   }
-  return this.bufferBuilder.getBuffer();
+  this.bufferBuilder.flush();
 }
 
 
@@ -395,13 +331,13 @@ Packer.prototype.pack_bin = function(blob){
     this.pack_uint32(length);
   } else{
     throw new Error('Invalid length');
-    return;
   }
   this.bufferBuilder.append(blob);
 }
 
 Packer.prototype.pack_string = function(str){
-  var length = str.length;
+  var length = utf8Length(str);
+
   if (length <= 0x0f){
     this.pack_uint8(0xb0 + length);
   } else if (length <= 0xffff){
@@ -412,7 +348,6 @@ Packer.prototype.pack_string = function(str){
     this.pack_uint32(length);
   } else{
     throw new Error('Invalid length');
-    return;
   }
   this.bufferBuilder.append(str);
 }
@@ -566,4 +501,93 @@ Packer.prototype.pack_int64 = function(num){
   this.bufferBuilder.append((low  & 0x000000ff));
 }
 
-})(this);
+function _utf8Replace(m){
+  var code = m.charCodeAt(0);
+
+  if(code <= 0x7ff) return '00';
+  if(code <= 0xffff) return '000';
+  if(code <= 0x1fffff) return '0000';
+  if(code <= 0x3ffffff) return '00000';
+  return '000000';
+}
+
+function utf8Length(str){
+  if (str.length > 600) {
+    // Blob method faster for large strings
+    return (new Blob([str])).size;
+  } else {
+    return str.replace(/[^\u0000-\u007F]/g, _utf8Replace).length;
+  }
+}
+
+},{"./bufferbuilder":2}],2:[function(_dereq_,module,exports){
+var binaryFeatures = {};
+binaryFeatures.useBlobBuilder = (function(){
+  try {
+    new Blob([]);
+    return false;
+  } catch (e) {
+    return true;
+  }
+})();
+
+binaryFeatures.useArrayBufferView = !binaryFeatures.useBlobBuilder && (function(){
+  try {
+    return (new Blob([new Uint8Array([])])).size === 0;
+  } catch (e) {
+    return true;
+  }
+})();
+
+module.exports.binaryFeatures = binaryFeatures;
+var BlobBuilder = module.exports.BlobBuilder;
+if (typeof window != 'undefined') {
+  BlobBuilder = module.exports.BlobBuilder = window.WebKitBlobBuilder ||
+    window.MozBlobBuilder || window.MSBlobBuilder || window.BlobBuilder;
+}
+
+function BufferBuilder(){
+  this._pieces = [];
+  this._parts = [];
+}
+
+BufferBuilder.prototype.append = function(data) {
+  if(typeof data === 'number') {
+    this._pieces.push(data);
+  } else {
+    this.flush();
+    this._parts.push(data);
+  }
+};
+
+BufferBuilder.prototype.flush = function() {
+  if (this._pieces.length > 0) {
+    var buf = new Uint8Array(this._pieces);
+    if(!binaryFeatures.useArrayBufferView) {
+      buf = buf.buffer;
+    }
+    this._parts.push(buf);
+    this._pieces = [];
+  }
+};
+
+BufferBuilder.prototype.getBuffer = function() {
+  this.flush();
+  if(binaryFeatures.useBlobBuilder) {
+    var builder = new BlobBuilder();
+    for(var i = 0, ii = this._parts.length; i < ii; i++) {
+      builder.append(this._parts[i]);
+    }
+    return builder.getBlob();
+  } else {
+    return new Blob(this._parts);
+  }
+};
+
+module.exports.BufferBuilder = BufferBuilder;
+
+},{}],3:[function(_dereq_,module,exports){
+module.exports = _dereq_('js-binarypack');
+
+},{"js-binarypack":1}]},{},[3])(3)
+});

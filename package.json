@@ -1,18 +1,28 @@
 {
   "name": "binary-pack",
-  "description": "A module to package both browser and node versions of @ericz's binarypack",
   "version": "0.0.3",
+  "description": "A module to package both browser and node versions of @ericz's binarypack",
+  "homepage": "https://github.com/primus/binary-pack",
+  "bugs": "https://github.com/primus/binary-pack/issues",
+  "license": "MIT",
   "author": "Jarrett Cruger <jcrugzz@gmail.com>",
+  "main": "index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/primus/binary-pack.git"
   },
-  "main": "index.js",
+  "scripts": {
+    "update": "npm i js-binarypack && vendor/update.sh"
+  },
   "engines": {
     "node": ">=0.8.0"
   },
   "dependencies": {
-    "binarypack": "0.0.4"
+    "binarypack": "0.0.x"
   },
-  "license": "MIT"
+  "devDependencies": {
+    "browserify": "9.0.x",
+    "concat-stream": "1.4.x",
+    "derequire": "2.0.x"
+  }
 }
