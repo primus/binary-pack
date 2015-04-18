@@ -1,6 +1,6 @@
 {
   "name": "binary-pack",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A module to package both browser and node versions of @ericz's binarypack",
   "homepage": "https://github.com/primus/binary-pack",
   "bugs": "https://github.com/primus/binary-pack/issues",
