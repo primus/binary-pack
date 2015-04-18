@@ -1,1 +1,1 @@
-module.exports = require('js-binarypack');
+context.BinaryPack = require('js-binarypack');

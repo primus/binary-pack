@@ -2,7 +2,7 @@
 
 'use strict';
 
-var pkg  = require(require.resolve('js-binarypack/package'))
+var pkg  = require('js-binarypack/package')
   , browserify = require('browserify')
   , concat = require('concat-stream')
   , derequire = require('derequire')
@@ -11,15 +11,17 @@ var pkg  = require(require.resolve('js-binarypack/package'))
 
 browserify({
   entries: [ path.join(__dirname, 'index.js') ],
-  standalone: 'BinaryPack',
 }).bundle().pipe(concat({
   encoding: 'string'
 }, function (output) {
   var prelude = '/*! binarypack.js build:'+ pkg.version +', production. '+
-    'Copyright(c) 2012 Eric Zhang <eric@ericzhang.com> MIT Licensed */\n';
+    'Copyright(c) 2012 Eric Zhang <eric@ericzhang.com> MIT Licensed */';
 
-  fs.writeFileSync(
-    path.join(__dirname, 'binarypack.js'),
-    prelude + derequire(output)
-  );
+  fs.writeFileSync(path.join(__dirname, 'binarypack.js'), [
+    prelude,
+    '(function (context) {',
+      derequire(output),
+    '})(this);',
+    ''
+  ].join('\n'));
 }));
