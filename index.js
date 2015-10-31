@@ -5,16 +5,12 @@
  *
  */
 
-var fs = require('fs'),
-    path = require('path');
+var read = require('fs').readFileSync
+  , join = require('path').join;
 
-module.exports = require('binarypack');
+exports = module.exports = require('binarypack');
 
 //
-// Expose source of browser code to be loaded by primus
+// Expose source of browser code to be loaded by primus.
 //
-module.exports.BrowserSource = fs.readFileSync(
-  path.join(__dirname, './vendor/binarypack.js')
-, 'utf-8');
-
-
+exports.BrowserSource = read(join(__dirname, 'vendor/binarypack.js'), 'utf-8');
