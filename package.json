@@ -12,7 +12,10 @@
     "url": "https://github.com/primus/binary-pack.git"
   },
   "scripts": {
-    "update": "npm i js-binarypack && vendor/update.sh"
+    "test-travis": "istanbul cover _mocha --report lcovonly",
+    "update": "npm i js-binarypack && vendor/update.sh",
+    "coverage": "istanbul cover _mocha",
+    "test": "mocha"
   },
   "engines": {
     "node": ">=0.8.0"
@@ -23,6 +26,8 @@
   "devDependencies": {
     "browserify": "12.0.x",
     "concat-stream": "1.5.x",
-    "derequire": "2.0.x"
+    "derequire": "2.0.x",
+    "istanbul": "0.4.x",
+    "mocha": "2.3.x"
   }
 }
