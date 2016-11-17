@@ -24,10 +24,10 @@
     "binarypack": "0.0.x"
   },
   "devDependencies": {
-    "browserify": "~13.1.1",
+    "browserify": "13.1.x",
     "concat-stream": "1.5.x",
     "derequire": "2.0.x",
     "istanbul": "0.4.x",
-    "mocha": "~3.1.2"
+    "mocha": "3.1.x"
   }
 }
