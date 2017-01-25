@@ -24,7 +24,7 @@
     "binarypack": "~0.0.4"
   },
   "devDependencies": {
-    "browserify": "~13.3.0",
+    "browserify": "~14.0.0",
     "concat-stream": "~1.6.0",
     "derequire": "~2.0.3",
     "istanbul": "~0.4.5",
