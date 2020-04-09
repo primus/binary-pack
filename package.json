@@ -26,7 +26,7 @@
   "devDependencies": {
     "browserify": "~16.5.0",
     "concat-stream": "~2.0.0",
-    "derequire": "~2.0.3",
+    "derequire": "~2.1.0",
     "istanbul": "~0.4.5",
     "mocha": "~6.2.0"
   }
